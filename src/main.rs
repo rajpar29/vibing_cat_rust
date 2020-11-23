@@ -1,5 +1,10 @@
-use std::process::Command;
+use std::io::Write;
+use std::path::Path;
+use std::process::{Command, Stdio};
+use std::fs;
+
 use structopt::StructOpt;
+use text_io::read;
 
 
 #[derive(Debug, StructOpt)]
@@ -20,7 +25,6 @@ struct Cli {
     #[structopt(short = "o", long = "output", default_value = "meme.mp4")]
     out_path: String,
 }
-
 
 struct DrawArgs {
     fontcolor: &'static str,
@@ -50,7 +54,6 @@ const DRUM_ARGS: DrawArgs = DrawArgs {
     y: 600,
 };
 
-
 fn create_drawtext(text: String, mut args: DrawArgs) -> Vec<String> {
     let lines = text.split("\\n");
     let mut drawtext: Vec<String> = Vec::new();
@@ -63,37 +66,57 @@ fn create_drawtext(text: String, mut args: DrawArgs) -> Vec<String> {
             x = args.x,
             y = args.y
         ));
-        args.y += 58;
+        args.y += 58; // Make space between two lines
     }
     return drawtext;
 }
 
+fn output_file_name(filename: &str) -> String{
+    let file_exist: bool = Path::new(&format!("{}", filename)).exists();
+    if !file_exist {
+        return String::from(filename);
+    }
+    println!(
+        "File with name '{}' already exist. Override it y/n ?",
+        filename
+    );
+    let ans: char = read!();
+    if ans == 'y'{
+        fs::remove_file(filename).expect("could not remove file");
+        return String::from(filename);
+    }
+    else{
+        println!("Enter new output filename:");
+        let name: String = read!(); 
+        return name;
+    }
+}
+
 fn main() {
-    let args = Cli::from_args();
+    let mut args = Cli::from_args();
     let mut text_list: Vec<String> = Vec::new();
+    let bytes = include_bytes!("../assets/cat.mp4");
+    args.out_path = output_file_name(&args.out_path);
 
     text_list.extend(create_drawtext(args.cat_msg, CAT_ARGS));
     text_list.extend(create_drawtext(args.man_msg, MAN_ARGS));
     text_list.extend(create_drawtext(args.drum_msg, DRUM_ARGS));
     let drawtext = text_list.join(",");
-
-    let status = Command::new("ffmpeg")
-        .args(&["-i", "/media/main/RUST/cat_meme/assets/cat.mp4"])
+    let mut command = Command::new("ffmpeg");
+    command
+        .stdin(Stdio::piped())
+        .args(&["-i", "-"])
         .args(&["-threads", "16"])
         .args(&["-vf", &drawtext])
         .args(&["-codec:a"])
-        .args(&["copy", &args.out_path])
-        .status()
-        .expect("Failed to execute process");
+        .args(&["copy", &args.out_path]);
 
-    match status.code() {
-        Some(code) => {
-            if code == 0 {
-                println!("Your meme is ready")
-            } else {
-                println!("Exited with status code: {}", code);
-            }
-        }
-        None => println!("Process terminated by signal"),
+    if let Ok(mut child) = command.spawn() {
+        let stdin = child.stdin.as_mut().expect("Failed to open stdin");
+        stdin.write_all(bytes).expect("Failed to write to stdin");
+        child.wait().expect("command wasn't running");
+        println!("Your meme is ready");
+    } else {
+        println!("FFMPEG didn't start");
     }
 }
