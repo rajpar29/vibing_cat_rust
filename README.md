@@ -1,1 +1,24 @@
-# vibing_cat_rust
+# Vibing Cat Meme Generator using rust
+
+Inspired from :[Meme generator using bash](https://www.reddit.com/r/linuxmemes/comments/jvvcrk/generating_cat_vibing_memes_with_bash_why_not/)
+
+The release build is a single executable file, so no seperate template vedio file needed. 
+
+```
+USAGE:
+    cat_meme [OPTIONS] --cat <cat-msg> --drum <drum-msg> --man <man-msg>
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -c, --cat <cat-msg>        
+    -d, --drum <drum-msg>      
+    -m, --man <man-msg>        
+    -o, --output <out-path>     [default: meme.mp4]
+```
+
+```
+cat_meme -c "Rust \n Community" -m "Rust meme \n generator" -d "Rust memes"  
+```
