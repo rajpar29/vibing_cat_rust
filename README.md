@@ -4,6 +4,8 @@ Inspired from :[Meme generator using bash](https://www.reddit.com/r/linuxmemes/c
 
 The release build is a single executable file, so no seperate template vedio file needed. 
 
+[Try now. Just unzip it.](https://github.com/rajpar29/vibing_cat_rust/files/5583289/cat_meme.zip)
+You will need FFMPEG and rust to run it.
 ```
 USAGE:
     cat_meme [OPTIONS] --cat <cat-msg> --drum <drum-msg> --man <man-msg>
