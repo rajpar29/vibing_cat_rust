@@ -22,3 +22,4 @@ OPTIONS:
 ```
 cat_meme -c "Rust \n Community" -m "Rust meme \n generator" -d "Rust memes"  
 ```
+![Sample Screenshot of video](https://github.com/rajpar29/vibing_cat_rust/blob/master/sample_screenshot.png?raw=true)
