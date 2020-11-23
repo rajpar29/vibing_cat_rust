@@ -105,7 +105,7 @@ fn main() {
     let mut command = Command::new("ffmpeg");
     command
         .stdin(Stdio::piped())
-        .args(&["-i", "-"])
+        .args(&["-i", "-"]) // No file name given as video will be given as input byte stream
         .args(&["-threads", "16"])
         .args(&["-vf", &drawtext])
         .args(&["-codec:a"])
